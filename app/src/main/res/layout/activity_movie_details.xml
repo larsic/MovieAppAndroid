@@ -10,4 +10,72 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="lars.be.movieapp.MovieDetails">
 
+    <ImageView
+        android:id="@+id/imageViewDetails"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/movieTitle"
+        />
+
+    <TextView
+        android:id="@+id/movieTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        />
+    <TextView
+        android:id="@+id/movieDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imageViewDetails"
+        android:textSize="@dimen/TextDescriptionDetail"
+        />
+    <GridLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/movieDescription"
+        android:id="@+id/grid"
+        android:columnCount="2"
+        >
+        <TextView
+            android:id="@+id/movieRuntime"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="@dimen/TextDescription"
+            />
+        <TextView
+            android:id="@+id/movieRuntimeData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/TextDescription"
+            />
+        <TextView
+            android:id="@+id/movieScore"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="@dimen/TextDescription"
+            />
+        <TextView
+            android:id="@+id/movieScoreData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/TextDescription"
+            />
+
+
+
+    </GridLayout>
+    <HorizontalScrollView
+        android:layout_below="@id/grid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+        <LinearLayout
+            android:id="@+id/mygallery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            />
+    </HorizontalScrollView>
 </RelativeLayout>
