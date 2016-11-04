@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextClock;
 import android.widget.TextView;
 
@@ -40,6 +41,7 @@ public class MovieDetails extends AppCompatActivity implements AppController.OnM
     private TextView movieScore;
     private TextView movieScoreData;
     private LinearLayout myGallery;
+    private TextView movieTagLine;
 
 
     @Override
@@ -62,16 +64,41 @@ public class MovieDetails extends AppCompatActivity implements AppController.OnM
         movieRuntimeData = (TextView) findViewById(R.id.movieRuntimeData);
         movieScore= (TextView) findViewById(R.id.movieScore);
         movieScoreData = (TextView) findViewById(R.id.movieScoreData);
+        movieTagLine = (TextView) findViewById(R.id.movieTagline);
 
 
         myGallery = (LinearLayout)findViewById(R.id.mygallery);
 
         URL imageUrl = null;
+        String movieBackdropPath = movieInfo.getBackdropPath();
+        imageUrl = AppController.getInstance().createImageUrl(movieBackdropPath, "w500");
 
-        imageUrl = AppController.getInstance().createImageUrl(movieInfo.getBackdropPath(), "w500");
-        ImageLoader.getInstance().displayImage(imageUrl.toString(), imageViewDetails);
+        if(movieBackdropPath != null) {
 
-        movieTitle.setText(movieInfo.getTitle()+" ("+ movieInfo.getReleaseDate().substring(0, 4) +")");
+            ImageLoader.getInstance().displayImage(imageUrl.toString(), imageViewDetails);
+        } else {
+            //ImageLoader.getInstance().displayImage(imageUrl.toString(), imageViewDetails);
+            //holder.getImageView().setImageResource(R.drawable.ic_menu_camera);
+
+            //NOT SHOWING ANY PIC
+            ImageView imageView = new ImageView(getApplicationContext());
+            imageView.setImageResource(R.drawable.ic_menu_camera);
+        }
+
+
+
+        if (movieInfo.getReleaseDate().length() > 3) {
+            movieTitle.setText(movieInfo.getTitle() + " (" + movieInfo.getReleaseDate().substring(0, 4) + ")");
+        }    else {
+            movieTitle.setText(movieInfo.getTitle());
+        }
+        if(movieInfo.getTagline() != null && !movieInfo.getTagline().trim().equals("")) {
+            movieTagLine.setText(movieInfo.getTagline());
+        } else {
+            movieTagLine.setTextSize(0);
+
+        }
+
         movieDescription.setText(movieInfo.getOverview());
 
         movieRuntime.setText("Movie length: ");
@@ -112,20 +139,45 @@ public class MovieDetails extends AppCompatActivity implements AppController.OnM
     @Override
     public void onMovieListChanged() {
         for (MediaCreditCast cast : AppController.getInstance().cast){
-            myGallery.addView(insertCastPicture(cast.getArtworkPath()));
+            myGallery.addView(insertCastPicture(cast));
         }
     }
 
-    private View insertCastPicture(String artworkPath) {
+    private View insertCastPicture(MediaCreditCast cast) {
+
+        LinearLayout linearLayout = new LinearLayout(this);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        linearLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
+                LayoutParams.WRAP_CONTENT));
+
         ImageView imageView = new ImageView(getApplicationContext());
         imageView.setLayoutParams(new LayoutParams(92, 120));
         imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        if (artworkPath != null) {
-            ImageLoader.getInstance().displayImage(AppController.getInstance().createImageUrl(artworkPath, "w92").toString(), imageView);
+        if (cast.getArtworkPath() != null) {
+            ImageLoader.getInstance().displayImage(AppController.getInstance().createImageUrl(cast.getArtworkPath(), "w92").toString(), imageView);
         } else {
-            ImageLoader.getInstance().displayImage(null, imageView);
+            //ImageLoader.getInstance().displayImage(null, imageView);
+            imageView.setImageResource(R.drawable.ic_menu_camera);
         }
-        return imageView;
+
+
+
+
+        TextView castName = new TextView(this);
+        castName.setText(cast.getName());
+
+        castName.setTextSize(8);
+        castName.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
+                LayoutParams.WRAP_CONTENT, 1f));
+        castName.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+
+        castName.setSingleLine(false);
+        castName.setMinLines(2);
+
+        linearLayout.addView(imageView);
+        linearLayout.addView(castName);
+
+        return linearLayout;
     }
 
 
