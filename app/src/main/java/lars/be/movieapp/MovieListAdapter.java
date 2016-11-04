@@ -53,7 +53,14 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieViewHolder> {
         holder.getTitleTextView().setText(currentMovie.getTitle());
         holder.getDescriptionTextView().setText(currentMovie.getOverview());
         holder.getUserRatingView().setText(MessageFormat.format(context.getString(R.string.voteAverage), currentMovie.getVoteAverage(), currentMovie.getVoteCount()));
-        holder.getReleaseDateView().setText(MessageFormat.format(context.getString(R.string.releaseYear), currentMovie.getReleaseDate().substring(0, 4)));
+        String rDate = currentMovie.getReleaseDate();
+
+        if (rDate.length() > 3) {
+
+            holder.getReleaseDateView().setText(MessageFormat.format(context.getString(R.string.releaseYear), rDate.substring(0, 4)));
+        } else {
+            holder.getReleaseDateView().setText("");
+        }
         holder.getCardView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
