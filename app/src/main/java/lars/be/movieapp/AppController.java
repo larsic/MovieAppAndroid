@@ -12,7 +12,9 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.omertron.themoviedbapi.MovieDbException;
 import com.omertron.themoviedbapi.TheMovieDbApi;
 import com.omertron.themoviedbapi.model.config.Configuration;
+import com.omertron.themoviedbapi.model.credits.MediaCreditCast;
 import com.omertron.themoviedbapi.model.discover.Discover;
+import com.omertron.themoviedbapi.model.media.MediaCreditList;
 import com.omertron.themoviedbapi.model.movie.MovieBasic;
 import com.omertron.themoviedbapi.model.movie.MovieInfo;
 import com.omertron.themoviedbapi.results.ResultList;
@@ -35,6 +37,9 @@ public class AppController extends Application{
     private List<MovieBasic> movieList = new ArrayList<>();
     private List<OnMovieListChangedListener> allListeners = new ArrayList<>();
     private MovieInfo movieDetails;
+    List<MediaCreditCast> cast = new ArrayList<>();
+
+
 
 
     public static AppController getInstance(){
@@ -83,6 +88,11 @@ public class AppController extends Application{
     public void fetchOneMovie(int id){
         FetchUniqueMovieInfo fetchIt = new FetchUniqueMovieInfo();
         fetchIt.execute(id);
+    }
+
+    public void fetchCast(int id){
+        FetchCastFromMovie fetchItAgain = new FetchCastFromMovie();
+        fetchItAgain.execute(id);
     }
 
     public List<MovieBasic> getMovieList() {
@@ -174,8 +184,37 @@ public class AppController extends Application{
             // todo intent movieDetails, pass through movieInfo in extras
             Intent gogo = new Intent(getBaseContext(), MovieDetails.class);
             gogo.putExtra("movieInfo", movieInfo);
+            gogo.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(gogo);
         }
     }
+    //cast
+    private class FetchCastFromMovie extends AsyncTask<Integer, Void, MediaCreditList>{
+
+        @Override
+        protected MediaCreditList doInBackground(Integer... params) {
+            try {
+
+                return api.getMovieCredits(params[0].intValue());
+            } catch (MovieDbException e1) {
+                e1.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(MediaCreditList media) {
+            super.onPostExecute(media);
+            // todo intent movieDetails, pass through movieInfo in extras
+
+            cast.clear();
+            cast.addAll(media.getCast());
+            notifyAllListeners();
+
+        }
+    }
+
+
 
 
     public URL createImageUrl(String imagePath, String imageSize){

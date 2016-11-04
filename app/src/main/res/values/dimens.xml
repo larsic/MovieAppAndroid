@@ -8,4 +8,6 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="TitleSize">10sp</dimen>
     <dimen name="TextDescription">8sp</dimen>
+    <dimen name="TextDescriptionDetail">10sp</dimen>
+
 </resources>
