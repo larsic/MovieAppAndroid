@@ -72,12 +72,19 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieViewHolder> {
 
 
         URL imageUrl = null;
+        String pathIsEmpty = currentMovie.getPosterPath();
+        imageUrl = AppController.getInstance().createImageUrl(pathIsEmpty, "w92");
+        if(pathIsEmpty != null){
+            ImageLoader.getInstance().displayImage(imageUrl.toString(), holder.getImageView());
+        } else {
+            holder.getImageView().setImageResource(R.drawable.ic_menu_camera);
+        }
 
-        imageUrl = AppController.getInstance().createImageUrl(currentMovie.getPosterPath(), "w92");
-        ImageLoader.getInstance().displayImage(imageUrl.toString(), holder.getImageView());
 
 
-        //animate(holder);
+
+
+
 
     }
 
