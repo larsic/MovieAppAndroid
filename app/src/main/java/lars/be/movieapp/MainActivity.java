@@ -1,5 +1,6 @@
 package lars.be.movieapp;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Movie;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -29,6 +31,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.omertron.themoviedbapi.MovieDbException;
 import com.omertron.themoviedbapi.TheMovieDbApi;
+import com.omertron.themoviedbapi.model.Genre;
 import com.omertron.themoviedbapi.model.config.Configuration;
 import com.omertron.themoviedbapi.model.discover.Discover;
 import com.omertron.themoviedbapi.model.movie.MovieBasic;
@@ -36,6 +39,8 @@ import com.omertron.themoviedbapi.results.ResultList;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static lars.be.movieapp.R.id.recyclerView;
@@ -152,13 +157,46 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_camera) {
             AppController.getInstance().fetchMovieInfo();
-        } else if (id == R.id.nav_gallery) {
+        }
 
-        } else if (id == R.id.nav_slideshow) {
+        else if (id == R.id.nav_gallery) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                List<String> allGenres = new ArrayList<>();
+            for (Genre g : AppController.getInstance().getGenres()
+                 ) {
+                allGenres.add(g.getName());
+            }
+            String[] allGenreNames = allGenres.toArray(new String[AppController.getInstance().getGenres().size()]);
+            builder.setTitle(R.string.pick_genre)
+                        .setItems(allGenreNames, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                AppController.getInstance().fetchMovieByGenre(which);
+                            }
+                        });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
+
+        }
+
+        else if (id == R.id.nav_slideshow) {
+
+            AppController.getInstance().fetchMovies("top-rated");
 
         } else if (id == R.id.nav_manage) {
 
-        } else if (id == R.id.nav_share) {
+            AppController.getInstance().fetchMovies("now-playing");
+
+        }
+
+        else if (id == R.id.nav_upcoming) {
+
+            AppController.getInstance().fetchMovies("upcoming");
+
+        }
+
+        else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
 

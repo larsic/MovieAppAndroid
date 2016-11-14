@@ -12,6 +12,7 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.omertron.themoviedbapi.MovieDbException;
 import com.omertron.themoviedbapi.TheMovieDbApi;
 import com.omertron.themoviedbapi.enumeration.SearchType;
+import com.omertron.themoviedbapi.model.Genre;
 import com.omertron.themoviedbapi.model.config.Configuration;
 import com.omertron.themoviedbapi.model.credits.MediaCreditCast;
 import com.omertron.themoviedbapi.model.discover.Discover;
@@ -37,6 +38,8 @@ public class AppController extends Application{
     private List<OnMovieListChangedListener> allListeners = new ArrayList<>();
     private MovieInfo movieDetails;
     List<MediaCreditCast> cast = new ArrayList<>();
+    List<Genre> genres;
+
 
 
 
@@ -58,7 +61,9 @@ public class AppController extends Application{
             api = new TheMovieDbApi(getString(R.string.apiKey));
             FetchConfiguration fetchConfiguration =  new FetchConfiguration();
             fetchConfiguration.execute();
+            fetchGenres();
             fetchMovieInfo();
+
         } catch (MovieDbException e) {
             e.printStackTrace();
             Log.e("TheMovieDBApi", "Error: "+ e.getMessage());
@@ -80,7 +85,18 @@ public class AppController extends Application{
         ImageLoader.getInstance().init(config);
     }
 
+    private void fetchGenres() {
+
+        FetchGenres fetchGenres = new FetchGenres();
+        fetchGenres.execute();
+    }
+
     public AppController() {
+    }
+
+    public void fetchMovies(String what) {
+        FetchMovies fetchMovies = new FetchMovies(what);
+        fetchMovies.execute();
     }
 
     public void fetchMovieInfo() {
@@ -113,6 +129,11 @@ public class AppController extends Application{
 
     public TheMovieDbApi getApi() {
         return api;
+    }
+
+    public void fetchMovieByGenre(int which) {
+        FetchMovieByGenre fetchIt = new FetchMovieByGenre();
+        fetchIt.execute(which);
     }
 
     public interface OnMovieListChangedListener {
@@ -149,6 +170,64 @@ public class AppController extends Application{
         }
     }
 
+    private class FetchGenres extends AsyncTask<Void, Void, ResultList<Genre>>{
+
+        @Override
+        protected ResultList<Genre> doInBackground(Void... params) {
+            try {
+                return api.getGenreMovieList("en-US");
+            } catch (MovieDbException e1) {
+                e1.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(ResultList<Genre> genreList) {
+            super.onPostExecute(genreList);
+
+
+            Log.v("Found", genreList.toString());
+           genres = genreList.getResults();
+        }
+    }
+
+
+    private class FetchMovieByGenre extends AsyncTask<Integer, Void, ResultList<MovieBasic>>{
+
+        @Override
+        protected ResultList<MovieBasic> doInBackground(Integer... params) {
+            try {
+                Discover discoverByGenre = new Discover();
+//                discoverByGenre.language("en-US");
+  //             discoverByGenre.sortBy(SortBy.PRIMARY_RELEASE_DATE_DESC);
+//                Date today = new Date();
+//               SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+//               discoverByGenre.releaseDateLte(format.format(today));
+               discoverByGenre.withGenres(""+genres.get(params[0]).getId());
+
+
+
+                return api.getDiscoverMovies(discoverByGenre);
+                //return api.getGenreMovies(genres.get(params [0]).getId(), "en-US", 1, false, false);
+            } catch (MovieDbException e1) {
+                e1.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(ResultList<MovieBasic> movieBasicResultList) {
+            super.onPostExecute(movieBasicResultList);
+
+
+            Log.v("Found", movieBasicResultList.toString());
+            movieList.clear();
+            movieList.addAll(movieBasicResultList.getResults());
+            notifyAllListeners();
+        }
+    }
+
 
     private class FetchMovieInfo extends AsyncTask<Void, Void, ResultList<MovieBasic>>{
 
@@ -174,12 +253,49 @@ public class AppController extends Application{
         }
     }
 
+    private class FetchMovies extends AsyncTask<Object, Object, ResultList<MovieInfo>> {
+
+        private String task;
+
+        public FetchMovies(String task) {
+            this.task = task;
+        }
+
+        @Override
+        protected ResultList<MovieInfo> doInBackground(Object... params) {
+            try {
+                if(task.equals("top-rated")) {
+                    return api.getTopRatedMovies(1, "en-US");
+                }
+                else if(task.equals("now-playing")) {
+                    return api.getNowPlayingMovies(1, "en-US");
+                }
+                else {
+                    return api.getUpcoming(1, "en-US");
+                    }
+                }
+            catch (MovieDbException e1) {
+                e1.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(ResultList<MovieInfo> movieBasicResultList) {
+            super.onPostExecute(movieBasicResultList);
+            Log.v("Found", movieBasicResultList.toString());
+            movieList.clear();
+            movieList.addAll(movieBasicResultList.getResults());
+            notifyAllListeners();
+        }
+    }
+
     private class FetchUniqueMovieInfo extends AsyncTask<Integer, Void, MovieInfo>{
 
         @Override
         protected MovieInfo doInBackground(Integer... params) {
             try {
-                return api.getMovieInfo(params[0].intValue(), "en");
+                return api.getMovieInfo(params[0].intValue(), "en", "videos");
             } catch (MovieDbException e1) {
                 e1.printStackTrace();
             }
@@ -188,6 +304,7 @@ public class AppController extends Application{
 
         @Override
         protected void onPostExecute(MovieInfo movieInfo) {
+            System.out.println("moviedetail "+movieInfo);
             super.onPostExecute(movieInfo);
             // todo intent movieDetails, pass through movieInfo in extras
             Intent gogo = new Intent(getBaseContext(), MovieDetails.class);
@@ -260,6 +377,7 @@ public class AppController extends Application{
 
     }
 
-
-
+    public List<Genre> getGenres() {
+        return genres;
+    }
 }

@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.omertron.themoviedbapi.model.credits.MediaCreditCast;
+import com.omertron.themoviedbapi.model.media.Video;
 import com.omertron.themoviedbapi.model.movie.MovieInfo;
 
 import java.net.URL;
@@ -107,6 +108,9 @@ public class MovieDetails extends AppCompatActivity implements AppController.OnM
         movieScore.setText(("Movie score: "));
         movieScoreData.setText(movieInfo.getVoteAverage() + " (" + movieInfo.getVoteCount() + " votes)");
 
+
+        List<Video> videos = movieInfo.getVideos();
+        Video video = videos.get(0);
 
 
         AppController.getInstance().fetchCast(movieInfo.getId());
