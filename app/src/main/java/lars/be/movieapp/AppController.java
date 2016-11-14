@@ -11,6 +11,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.omertron.themoviedbapi.MovieDbException;
 import com.omertron.themoviedbapi.TheMovieDbApi;
+import com.omertron.themoviedbapi.enumeration.SearchType;
 import com.omertron.themoviedbapi.model.config.Configuration;
 import com.omertron.themoviedbapi.model.credits.MediaCreditCast;
 import com.omertron.themoviedbapi.model.discover.Discover;
@@ -22,8 +23,6 @@ import com.omertron.themoviedbapi.results.ResultList;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import static lars.be.movieapp.R.id.recyclerView;
 
 /**
  * Created by brandonstark on 25/10/16.
@@ -59,8 +58,7 @@ public class AppController extends Application{
             api = new TheMovieDbApi(getString(R.string.apiKey));
             FetchConfiguration fetchConfiguration =  new FetchConfiguration();
             fetchConfiguration.execute();
-            FetchMovieInfo fetchMovieInfo = new FetchMovieInfo();
-            fetchMovieInfo.execute();
+            fetchMovieInfo();
         } catch (MovieDbException e) {
             e.printStackTrace();
             Log.e("TheMovieDBApi", "Error: "+ e.getMessage());
@@ -85,6 +83,11 @@ public class AppController extends Application{
     public AppController() {
     }
 
+    public void fetchMovieInfo() {
+        FetchMovieInfo fetchMovieInfo = new FetchMovieInfo();
+        fetchMovieInfo.execute();
+    }
+
     public void fetchOneMovie(int id){
         FetchUniqueMovieInfo fetchIt = new FetchUniqueMovieInfo();
         fetchIt.execute(id);
@@ -93,6 +96,11 @@ public class AppController extends Application{
     public void fetchCast(int id){
         FetchCastFromMovie fetchItAgain = new FetchCastFromMovie();
         fetchItAgain.execute(id);
+    }
+
+    public void searchMovieByTitle(String query){
+        SearchMovieByTitle searchIt = new SearchMovieByTitle();
+        searchIt.execute(query);
     }
 
     public List<MovieBasic> getMovieList() {
@@ -213,6 +221,31 @@ public class AppController extends Application{
 
         }
     }
+
+    private class SearchMovieByTitle extends AsyncTask<String, Void, ResultList<MovieInfo>> {
+
+        @Override
+        protected ResultList<MovieInfo> doInBackground(String... params) {
+            try {
+                return api.searchMovie(params[0], 1, "en", false, null, null, SearchType.PHRASE);
+                //return api.getMovieCredits(params[0].intValue());
+            } catch (MovieDbException e1) {
+                e1.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(ResultList<MovieInfo> media) {
+            super.onPostExecute(media);
+
+            movieList.clear();
+            movieList.addAll(media.getResults());
+            notifyAllListeners();
+
+        }
+    }
+
 
 
 

@@ -15,6 +15,7 @@ public class MovieViewHolder extends RecyclerView.ViewHolder {
     private CardView cardView;
     private ImageView imageView;
     private TextView titleTextView;
+    private TextView movieTagline;
     private  TextView descriptionTextView;
     private TextView userRatingView;
     private TextView releaseDateView;
@@ -24,6 +25,7 @@ public class MovieViewHolder extends RecyclerView.ViewHolder {
         cardView = (CardView) view.findViewById(R.id.cardView);
         imageView = (ImageView) view.findViewById(R.id.imageView);
         titleTextView = (TextView) itemView.findViewById(R.id.title);
+        movieTagline = (TextView) itemView.findViewById(R.id.movieTagline);
         descriptionTextView = (TextView) itemView.findViewById(R.id.description);
         userRatingView = (TextView) itemView.findViewById(R.id.userRating);
         releaseDateView = (TextView) itemView.findViewById(R.id.releaseDate);
@@ -75,5 +77,13 @@ public class MovieViewHolder extends RecyclerView.ViewHolder {
 
     public void setUserRatingView(TextView userRatingView) {
         this.userRatingView = userRatingView;
+    }
+
+    public TextView getMovieTagline() {
+        return movieTagline;
+    }
+
+    public void setMovieTagline(TextView movieTagline) {
+        this.movieTagline = movieTagline;
     }
 }
